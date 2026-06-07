@@ -169,7 +169,7 @@ const formatDate = (dateString) => {
 }
 
 // Fetch categories
-const { data: categories, refresh: refreshCategories } = await fetchCategories();
+const { data: categories } = await fetchCategories();
 categoryRecords.value = categories
 pending.value = false
 
@@ -182,7 +182,7 @@ const handleSubmit = async () => {
         category_title: categoryForm.category_title
     }
 
-    const { error: submitError } = await createCategory(newData);
+    const { data: category, error: submitError } = await createCategory(newData);
 
     isSubmitting.value = false
 
@@ -196,7 +196,8 @@ const handleSubmit = async () => {
     }
 
     categoryForm.category_title = ''
-    await refreshCategories()
+    
+    categoryRecords.value = [category, ...categoryRecords.value]
 }
 
 // Edit category
@@ -214,7 +215,7 @@ const handleUpdate = async () => {
         category_title: categoryForm.category_title
     }
 
-    const { error: submitError } = await editCategory(categoryForm.category_id, editedData);
+    const { data: category, error: submitError } = await editCategory(categoryForm.category_id, editedData);
 
     isSubmitting.value = false
 
@@ -227,9 +228,16 @@ const handleUpdate = async () => {
         return;
     }
 
+    categoryRecords.value = categoryRecords.value.map((item) => {
+        if (item.id === categoryForm.category_id) {
+            return category
+        }
+
+        return item
+    })
+
     categoryForm.category_id = 0
     categoryForm.category_title = ''
-    await refreshCategories()
 }
 
 // Cancel edit
@@ -242,7 +250,7 @@ const cancelUpdate = () => {
 const handleDelete = async (id) => {
     if(confirm(`Are you sure you want to delete this record #${id}?`)) {
         await deleteCategory(id);
-        await refreshCategories()
+        categoryRecords.value = categoryRecords.value.filter((item) => item.id !== id)
         errorToast.success({ title: 'Deleted!', message: `Record #${id} successfully deleted` })
     }
 }
