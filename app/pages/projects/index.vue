@@ -220,12 +220,12 @@ const totalCogs = computed(() => {
         };
     })
 
-    const general_costs = projectForm.quantity * (projectForm.blank_item_cost + projectForm.packaging_cost + projectForm.labor_cost)
+    const general_costs = projectForm.blank_item_cost + projectForm.packaging_cost + projectForm.labor_cost
     const sub_category_costs = formattedSubCategories.reduce((sum, item) => {
       return sum + item.cost || 0
     }, 0)
 
-    return general_costs + sub_category_costs
+    return projectForm.quantity * (general_costs + sub_category_costs)
 })
 
 // compute for SRP
