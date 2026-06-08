@@ -10,9 +10,9 @@ export const fetchCategories = async (query = '') => {
             cache: 'no-cache',
         })
     
-        return { data: res, error: null }
+        return { data: res, pending: false, error: null }
     } catch(error) {
-        return { data: null, error: error.data }
+        return { data: null, pending: false, error: error.data }
     }
 }
 
@@ -31,9 +31,9 @@ export const createCategory = async (form) => {
             cache: 'no-cache',
         })
 
-        return { data: res, error: null }
+        return { data: res, pending: false, error: null }
     } catch(error) {
-        return { data: null, error: error.data }
+        return { data: null, pending: false, error: error.data }
     }
 }
 
@@ -52,9 +52,9 @@ export const editCategory = async (id, item) => {
             cache: 'no-cache',
         })
 
-        return { data: res, error: null }
+        return { data: res, pending: false, error: null }
     } catch(error) {
-        return { data: null, error: error.data }
+        return { data: null, pending: false, error: error.data }
     }
 }
 
@@ -72,8 +72,8 @@ export const deleteCategory = async (id) => {
             cache: 'no-cache',
         })
 
-        return { data: res, error: null }
+        return { data: res, pending: false, error: null }
     } catch(error) {
-        return { data: null, error: error.data }
+        return { data: null, pending: false, error: error.data }
     }
 }

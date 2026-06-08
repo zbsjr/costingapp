@@ -17,7 +17,7 @@
         </div>
       
         <!-- Responsive Table Wrapper -->
-        <div v-if="!pending" class="overflow-x-auto">
+        <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse whitespace-nowrap">
             <thead>
               <tr class="bg-gray-50 border-b border-gray-200">
@@ -39,9 +39,27 @@
               </tr>
             </thead>
             
+            <tbody v-if="pending" class="divide-y divide-gray-200 bg-white">
+              <tr v-for="n in 4" :key="'skeleton-' + n" class="animate-pulse">
+                  <td class="px-6 py-4"><div class="h-4 w-48 bg-gray-200 rounded"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 w-20 bg-gray-200 rounded"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 w-20 bg-gray-200 rounded"></div></td>
+                  <td class="px-6 py-4"><div class="h-4 w-20 bg-gray-200 rounded"></div></td>
+                  <td class="px-6 py-4 text-right"><div class="h-4 w-16 bg-gray-200 rounded ml-auto"></div></td>
+              </tr>
+            </tbody>
             <tbody class="divide-y divide-gray-200 bg-white">
 
-              <tr v-for="proj in allProjects" :key="proj.id" class="hover:bg-gray-50/70 transition-colors duration-100">
+              <tr v-if="!pending && (!allProjects || allProjects.length === 0)">
+                <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                    </svg>
+                    <p class="text-base font-medium text-gray-900">No products found</p>
+                    <p class="text-sm text-gray-400 mt-0.5">Get started by creating a brand new product.</p>
+                </td>
+              </tr>
+              <tr v-else-if="!pending" v-for="proj in allProjects" :key="proj.id" class="hover:bg-gray-50/70 transition-colors duration-100">
                 <td class="px-6 py-4">
                   <div class="text-sm font-semibold text-gray-900">{{ proj.project_name }}</div>
                   <div class="text-xs text-gray-400">{{ proj.project_category[0].category_title }}</div>
@@ -93,15 +111,19 @@
 </template>
 
 <script setup>
+const pending = ref(true)
 const allProjects = ref([])
 
-const { data: projects, pending } = await fetchProjects()
+const { data: projects, loading } = await fetchProjects()
+pending.value = loading
 allProjects.value = projects
 
 // Delete record
 const handleDelete = async (id) => {
+    pending.value = true
     if(confirm(`Are you sure you want to delete this record #${id}?`)) {
-        await deleteProject(id);
+        const { data, loading } = await deleteProject(id);
+        pending.value = loading
         errorToast.success({ title: 'Deleted!', message: `Record #${id} successfully deleted` })
 
         allProjects.value = allProjects.value.filter((item) => item.id !== id)

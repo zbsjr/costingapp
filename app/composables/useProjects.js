@@ -11,9 +11,9 @@ export const fetchProjects = async (query = '', project_id = 0) => {
             cache: 'no-cache'
         })
 
-        return { data: res, error: null }
+        return { data: res, pending: false, error: null }
     } catch(error) {
-        return { data: null, error: error.data }
+        return { data: null, pending: false, error: error.data }
     }
 }
 
@@ -53,9 +53,9 @@ export const updateProject = async (form, id) => {
             cache: 'no-cache',
         })
 
-        return { data: res, error: null }
+        return { data: res, pending: false, error: null }
     } catch(error) {
-        return { data: null, error: error.data }
+        return { data: null, pending: false, error: error.data }
     }
 }
 

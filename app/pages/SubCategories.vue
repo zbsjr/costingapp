@@ -201,9 +201,9 @@ const searchByCategoryId = async () => {
     validationErrors.value = {}; 
     subCategoryForm.category_id = 0
     subCategoryForm.sub_category_title = ''
-    const {data: newData, error} = await fetchSubCategories(searchQuery.value, search_by_category_id.value)
+    const {data: newData, loading, error} = await fetchSubCategories(searchQuery.value, search_by_category_id.value)
+    pending.value = loading
     subCategoryRecords.value = newData
-    pending.value = false;
 }
 
 const debounceSearchQuery = refDebounced(searchQuery, 500)
@@ -212,9 +212,9 @@ watch(debounceSearchQuery, async (newQuery) => {
     validationErrors.value = {}; 
     subCategoryForm.category_id = 0
     subCategoryForm.sub_category_title = ''
-    const {data: newData, error} = await fetchSubCategories(newQuery, search_by_category_id.value)
+    const {data: newData, loading, error} = await fetchSubCategories(newQuery, search_by_category_id.value)
     subCategoryRecords.value = newData
-    pending.value = false;
+    pending.value = loading
 })
 
 const formatDate = (dateString) => {
@@ -231,12 +231,13 @@ const formatDate = (dateString) => {
 const { data: categories } = await fetchCategories();
 
 // Fetch sub-categories
-const { data: sub_categories } = await fetchSubCategories();
+const { data: sub_categories, loading } = await fetchSubCategories();
 subCategoryRecords.value = sub_categories
-pending.value = false
+pending.value = loading
 
 // Create new category
 const handleSubmit = async () => {
+    pending.value = true
     validationErrors.value = {}; 
     isSubmitting.value = true
 
@@ -245,8 +246,8 @@ const handleSubmit = async () => {
         sub_category_title: subCategoryForm.sub_category_title
     }
 
-    const { data, error: submitError } = await createSubCategory(newData);
-
+    const { data, loading, error: submitError } = await createSubCategory(newData);
+    pending.value = loading
     isSubmitting.value = false
 
     if (submitError) {
@@ -272,6 +273,7 @@ const populateForm = async (item) => {
 }
 
 const handleUpdate = async () => {
+    pending.value = true
     validationErrors.value = {}; 
     isSubmitting.value = true
 
@@ -280,8 +282,8 @@ const handleUpdate = async () => {
         sub_category_title: subCategoryForm.sub_category_title
     }
 
-    const { data, error: submitError } = await editSubCategory(subCategoryForm.sub_category_id, editedData);
-
+    const { data, loading, error: submitError } = await editSubCategory(subCategoryForm.sub_category_id, editedData);
+    pending.value = loading
     isSubmitting.value = false
 
     if (submitError) {
@@ -315,8 +317,10 @@ const cancelUpdate = () => {
 
 // Delete category
 const handleDelete = async (id) => {
+    pending.value = true
     if(confirm(`Are you sure you want to delete this record #${id}?`)) {
-        await deleteSubCategory(id);
+        const { data, loading } = await deleteSubCategory(id);
+        pending.value = loading
         errorToast.success({ title: 'Deleted!', message: `Record #${id} successfully deleted` })
 
         subCategoryRecords.value = subCategoryRecords.value.filter((item) => item.id !== id)

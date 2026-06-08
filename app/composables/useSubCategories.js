@@ -11,9 +11,9 @@ export const fetchSubCategories = async (query = '', category_id = 0) => {
             cache: 'no-cache',
         })
     
-        return { data: res, error: null }
+        return { data: res, pending: false, error: null }
     } catch(error) {
-        return { data: null, error: error.data }
+        return { data: null, pending: false, error: error.data }
     }
 }
 
@@ -32,9 +32,9 @@ export const createSubCategory = async (form) => {
             cache: 'no-cache',
         })
 
-        return { data: res, error: null }
+        return { data: res, pending: false, error: null }
     } catch(error) {
-        return { data: null, error: error.data }
+        return { data: null, pending: false, error: error.data }
     }
 }
 
@@ -53,9 +53,9 @@ export const editSubCategory = async (id, item) => {
             cache: 'no-cache',
         })
 
-        return { data: res, error: null }
+        return { data: res, pending: false, error: null }
     } catch(error) {
-        return { data: null, error: error.data }
+        return { data: null, pending: false, error: error.data }
     }
 }
 
@@ -73,8 +73,8 @@ export const deleteSubCategory = async (id) => {
             cache: 'no-cache',
         })
 
-        return { data: res, error: null }
+        return { data: res, pending: false, error: null }
     } catch(error) {
-        return { data: null, error: error.data }
+        return { data: null, pending: false, error: error.data }
     }
 }

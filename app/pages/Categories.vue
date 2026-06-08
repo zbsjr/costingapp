@@ -153,9 +153,9 @@ watch(debounceSearchQuery, async (newQuery) => {
     validationErrors.value = {}; 
     categoryForm.category_id = 0
     categoryForm.category_title = ''
-    const {data: newData, error} = await fetchCategories(newQuery)
+    const {data: newData, loading} = await fetchCategories(newQuery)
     categoryRecords.value = newData
-    pending.value = false;
+    pending.value = loading
 })
 
 const formatDate = (dateString) => {
@@ -169,12 +169,13 @@ const formatDate = (dateString) => {
 }
 
 // Fetch categories
-const { data: categories } = await fetchCategories();
+const { data: categories, loading } = await fetchCategories();
 categoryRecords.value = categories
-pending.value = false
+pending.value = loading
 
 // Create new category
 const handleSubmit = async () => {
+    pending.value = true
     validationErrors.value = {}; 
     isSubmitting.value = true
 
@@ -182,8 +183,9 @@ const handleSubmit = async () => {
         category_title: categoryForm.category_title
     }
 
-    const { data: category, error: submitError } = await createCategory(newData);
+    const { data: category, loading, error: submitError } = await createCategory(newData);
 
+    pending.value = loading
     isSubmitting.value = false
 
     if (submitError) {
@@ -208,6 +210,7 @@ const populateForm = async (item) => {
 }
 
 const handleUpdate = async () => {
+    pending.value = true
     validationErrors.value = {}; 
     isSubmitting.value = true
 
@@ -215,7 +218,8 @@ const handleUpdate = async () => {
         category_title: categoryForm.category_title
     }
 
-    const { data: category, error: submitError } = await editCategory(categoryForm.category_id, editedData);
+    const { data: category, loading, error: submitError } = await editCategory(categoryForm.category_id, editedData);
+    pending.value = loading
 
     isSubmitting.value = false
 
@@ -248,8 +252,10 @@ const cancelUpdate = () => {
 
 // Delete category
 const handleDelete = async (id) => {
+    pending.value = true
     if(confirm(`Are you sure you want to delete this record #${id}?`)) {
-        await deleteCategory(id);
+        const { data, loading} = await deleteCategory(id);
+        pending.value = loading
         categoryRecords.value = categoryRecords.value.filter((item) => item.id !== id)
         errorToast.success({ title: 'Deleted!', message: `Record #${id} successfully deleted` })
     }
