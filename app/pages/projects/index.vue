@@ -5,8 +5,111 @@
           <h3 class="text-lg font-bold text-gray-900">Create Project Costing</h3>
           <p class="text-sm text-gray-500">Calculate the total unit cost (COGS) and suggested retail price for a project.</p>
         </div>
-      
-        <form @submit.prevent="handleCreateProject" class="space-y-6">
+        
+        <div v-if="pending" class="animate-pulse space-y-6">
+  
+          <!-- SECTION A LOADING SKELETON -->
+          <div>
+            <!-- Section Title Line -->
+            <div class="h-4 bg-gray-200 rounded w-1/3 mb-3 border-b border-transparent pb-1"></div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Project Name Skeleton -->
+              <div class="flex flex-col gap-1.5 col-span-1 md:col-span-2">
+                <div class="h-3 bg-gray-200 rounded w-20"></div>
+                <div class="h-9 bg-gray-100 rounded-lg border border-gray-200 w-full"></div>
+              </div>
+        
+              <!-- Quantity Skeleton -->
+              <div class="flex flex-col gap-1.5">
+                <div class="h-3 bg-gray-200 rounded w-16"></div>
+                <div class="h-9 bg-gray-100 rounded-lg border border-gray-200 w-full"></div>
+              </div>
+        
+              <!-- Blank Item Cost Skeleton -->
+              <div class="flex flex-col gap-1.5">
+                <div class="h-3 bg-gray-200 rounded w-44"></div>
+                <div class="h-9 bg-gray-100 rounded-lg border border-gray-200 w-full"></div>
+              </div>
+        
+              <!-- Packaging Cost Skeleton -->
+              <div class="flex flex-col gap-1.5">
+                <div class="h-3 bg-gray-200 rounded w-24"></div>
+                <div class="h-9 bg-gray-100 rounded-lg border border-gray-200 w-full"></div>
+              </div>
+        
+              <!-- Labor Cost Skeleton -->
+              <div class="flex flex-col gap-1.5">
+                <div class="h-3 bg-gray-200 rounded w-32"></div>
+                <div class="h-9 bg-gray-100 rounded-lg border border-gray-200 w-full"></div>
+              </div>
+            </div>
+          </div>
+        
+          <!-- SECTION B LOADING SKELETON -->
+          <div>
+            <!-- Section Title Line -->
+            <div class="h-4 bg-gray-200 rounded w-2/5 mb-3 border-b border-transparent pb-1"></div>
+            
+            <div class="space-y-4">
+              <!-- Category Dropdown Selector Skeleton -->
+              <div class="flex flex-col gap-1.5 max-w-md">
+                <div class="h-3 bg-gray-200 rounded w-36"></div>
+                <div class="h-9 bg-gray-100 rounded-lg border border-gray-200 w-full"></div>
+              </div>
+        
+              <!-- Dynamic Sub-Category Container Skeleton -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 border border-gray-100 rounded-xl p-4">
+                <!-- Sub-cat Item 1 Placeholder -->
+                <div class="flex flex-col gap-1.5">
+                  <div class="h-3 bg-gray-200 rounded w-28"></div>
+                  <div class="h-9 bg-white rounded-lg border border-gray-200 w-full"></div>
+                </div>
+                <!-- Sub-cat Item 2 Placeholder -->
+                <div class="flex flex-col gap-1.5">
+                  <div class="h-3 bg-gray-200 rounded w-24"></div>
+                  <div class="h-9 bg-white rounded-lg border border-gray-200 w-full"></div>
+                </div>
+                <!-- Sub-cat Item 3 Placeholder -->
+                <div class="flex flex-col gap-1.5">
+                  <div class="h-3 bg-gray-200 rounded w-32"></div>
+                  <div class="h-9 bg-white rounded-lg border border-gray-200 w-full"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        
+          <!-- SECTION C LOADING SKELETON -->
+          <div>
+            <!-- Section Title Line -->
+            <div class="h-4 bg-gray-200 rounded w-1/4 mb-3 border-b border-transparent pb-1"></div>
+            
+            <div class="flex flex-col md:flex-row items-start md:items-center gap-6 bg-indigo-50/30 border border-indigo-100/50 rounded-xl p-5">
+              <!-- Markup Percentage Input Skeleton -->
+              <div class="flex flex-col gap-1.5 w-full md:w-1/4">
+                <div class="h-3 bg-indigo-200 rounded w-36"></div>
+                <div class="h-9 bg-white rounded-lg border border-indigo-100/70 w-full"></div>
+              </div>
+        
+              <!-- Calculated COGS Block Skeleton -->
+              <div class="flex flex-col justify-center h-full px-2 space-y-2">
+                <div class="h-3 bg-gray-200 rounded w-36"></div>
+                <div class="h-7 bg-gray-300 rounded w-24"></div>
+              </div>
+        
+              <!-- Vertical Divider Placeholder -->
+              <div class="hidden md:block h-10 w-px bg-indigo-100 self-center"></div>
+        
+              <!-- Calculated SRP Price Block Skeleton -->
+              <div class="flex flex-col justify-center h-full px-2 space-y-2">
+                <div class="h-3 bg-indigo-200 rounded w-48"></div>
+                <div class="h-7 bg-indigo-300 rounded w-28"></div>
+              </div>
+            </div>
+          </div>
+        
+        </div>
+        <form v-else-if="!pending" @submit.prevent="handleCreateProject" class="space-y-6">
           
           <!-- SECTION A: COMMON FIELDS (Grid for clean layout) -->
           <div>
@@ -196,6 +299,7 @@
 </template>
 
 <script setup>
+const pending = ref(true)
 const router = useRouter()
 const toast = useToast()
 const categoryRecords = ref([])
@@ -225,7 +329,7 @@ const totalCogs = computed(() => {
       return sum + item.cost || 0
     }, 0)
 
-    return projectForm.quantity * (general_costs + sub_category_costs)
+    return projectForm.quantity * (general_costs + sub_category_costs) || 0
 })
 
 // compute for SRP
@@ -235,8 +339,9 @@ const totalSrp = computed(() => {
 })
 
 // Fetch categories
-const { data: categories } = await fetchCategories();
+const { data: categories, loading } = await fetchCategories();
 categoryRecords.value = categories
+pending.value = loading
 
 // Fetch sub-categories when a category is selected
 const showSubCat = async () => {
@@ -246,6 +351,7 @@ const showSubCat = async () => {
 
 // Save project
 const handleCreateProject = async () => {
+    pending.value = true
     const formattedSubCategories = Object.keys(subCategoryCosts.value).map(id => {
         return {
           sub_category_id: parseInt(id),
@@ -266,12 +372,13 @@ const handleCreateProject = async () => {
       'sub_categories': formattedSubCategories,
     }
 
-    const { data: project, error } = await createProject(formData)
+    const { data: project, loading, error } = await createProject(formData)
     if(project){
       toast.success({ title: 'Created', message: `New project has been added` })
       router.push(`/`)
     } else {
       toast.error({ title: 'Error', message: error.message })
+      pending.value = loading
     }
 }
 </script>
