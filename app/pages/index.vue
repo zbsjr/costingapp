@@ -62,7 +62,7 @@
               <tr v-else-if="!pending" v-for="proj in allProjects" :key="proj.id" class="hover:bg-gray-50/70 transition-colors duration-100">
                 <td class="px-6 py-4">
                   <div class="text-sm font-semibold text-gray-900">{{ proj.project_name }}</div>
-                  <div class="text-xs text-gray-400">{{ proj.project_category[0].category_title }}</div>
+                  <div class="text-xs text-gray-400">{{ proj.project_category?.category_title }}</div>
                 </td>
                 <td class="px-6 py-4 text-center">
                   <span class="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
